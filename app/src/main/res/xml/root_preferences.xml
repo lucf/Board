@@ -1,0 +1,39 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/matrix">
+
+        <EditTextPreference
+            app:key="host"
+            app:title="@string/matrix_ip"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="port"
+            app:title="@string/matrix_port"
+            app:useSimpleSummaryProvider="true"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory>
+
+        <EditTextPreference
+            app:key="in"
+            app:title="@string/input"
+            app:useSimpleSummaryProvider="true"
+            />
+        <EditTextPreference
+            app:key="out"
+            app:title="@string/output"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:key="button_text_size"
+            app:title="@string/button_text_size"
+            app:defaultValue="14sp"
+            app:entries="@array/textsize"
+            app:entryValues="@array/textsize_values"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

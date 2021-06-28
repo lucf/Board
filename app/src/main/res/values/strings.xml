@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">矩阵</string>
+    <string name="title_activity_settings2">设置</string>
+
+    <string name="matrix">矩阵</string>
+    <string name="matrix_ip">IP地址</string>
+    <string name="matrix_port">端口</string>
+    <string name="input">输入</string>
+    <string name="output">输出</string>
+    <string name="button_text_size">按钮的字体大小</string>
+</resources>
