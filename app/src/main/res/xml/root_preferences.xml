@@ -1,6 +1,12 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="@string/matrix">
+        <EditTextPreference
+            app:key="companyname"
+            android:defaultValue="国家电网省公司"
+            app:title="公司名称"
+            app:useSimpleSummaryProvider="true"/>
 
         <EditTextPreference
             app:key="host"

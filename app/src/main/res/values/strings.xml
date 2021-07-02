@@ -8,4 +8,6 @@
     <string name="input">输入</string>
     <string name="output">输出</string>
     <string name="button_text_size">按钮的字体大小</string>
+    <string name="title">矩阵切换系统</string>
+    <string name="inputs">输入:</string>
 </resources>

@@ -12,6 +12,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,11 +30,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     //* host and port
+    String title="";
     String host = "127.0.0.1";
     int port = 8700;
-    final List<String> in = new ArrayList<String>();
-    final List<String> out = new ArrayList<String>();
-    TextView tv_in,tv_out;
+    final List<String> in = new ArrayList<>();
+    final List<String> out = new ArrayList<>();
+    TextView tv_in,tv_out,tv_title;
     RecyclerAdapter_Buttons mAdapter,mAdapter_out;
     String text_size="34";
 
@@ -45,11 +49,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d("tcp", "onCreate: ");
 
+        View view = findViewById(R.id.main);
+        WindowInsetsControllerCompat contrl = ViewCompat.getWindowInsetsController(view);
+        if (contrl != null){
+            contrl.hide(WindowInsetsCompat.Type.systemBars());
+            contrl.hide(WindowInsetsCompat.Type.navigationBars());
+        }
+
+        contrl.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
 
+        tv_title = findViewById(R.id.tv_title);
         tv_in= findViewById(R.id.tv_in);
         tv_out=findViewById(R.id.tv_out);
         //设置输入列表
@@ -63,22 +76,16 @@ public class MainActivity extends AppCompatActivity {
         //recyclerView_InButtons.addItemDecoration(new NormalDecoration(MainActivity.this, OrientationHelper.HORIZONTAL));
         //recyclerView_InButtons.addItemDecoration(new NormalDecoration(MainActivity.this, OrientationHelper.VERTICAL));
         mAdapter.setText_size(text_size);
-        mAdapter.setOnRecyclerItemClickListener(new RecyclerAdapter_Buttons.OnRecyclerItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
+        mAdapter.setOnRecyclerItemClickListener((view1, position) -> {
 
-            }
         });
-        mAdapter.setOnRecyclerItemFocusCkhangeListener(new RecyclerAdapter_Buttons.OnRecyclerItemFocusChangeListener() {
-            @Override
-            public void OnItemFocusChange(View view, int position, Boolean hasFocus) {
-                if (hasFocus){
-                    selected_in=position+1;
-                    selected_out=0;
-                    TextView tv_item = (TextView)view.findViewById(R.id.item_tv);
-                    tv_in.setText("输入 : "+tv_item.getText());
-                    Toast.makeText(MainActivity.this,selected_in + ":" +selected_out,Toast.LENGTH_SHORT).show();
-                }
+        mAdapter.setOnRecyclerItemFocusCkhangeListener((view12, position, hasFocus) -> {
+            if (hasFocus){
+                selected_in=position+1;
+                selected_out=0;
+                TextView tv_item = view12.findViewById(R.id.item_tv);
+                tv_in.setText(getString(R.string.inputs)+tv_item.getText());
+                //Toast.makeText(MainActivity.this,selected_in + ":" +selected_out,Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -95,42 +102,33 @@ public class MainActivity extends AppCompatActivity {
         //recyclerView_OutButtons.addItemDecoration(new NormalDecoration(MainActivity.this, OrientationHelper.VERTICAL));
         mAdapter_out.setText_size(text_size);
 
-        mAdapter_out.setOnRecyclerItemClickListener(new RecyclerAdapter_Buttons.OnRecyclerItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
+        mAdapter_out.setOnRecyclerItemClickListener((view13, position) -> {
 
-            }
         });
-        mAdapter_out.setOnRecyclerItemFocusCkhangeListener(new RecyclerAdapter_Buttons.OnRecyclerItemFocusChangeListener() {
-            @Override
-            public void OnItemFocusChange(View view, int position, Boolean hasFocus) {
-                if (hasFocus){
-                    selected_out=position+1;
+        mAdapter_out.setOnRecyclerItemFocusCkhangeListener((view14, position, hasFocus) -> {
+            if (hasFocus){
+                selected_out=position+1;
 
-                    if (selected_in>0 && selected_out>0){
-                        Toast.makeText(MainActivity.this,selected_in+" => "+selected_out,Toast.LENGTH_SHORT).show();
-                        String cmd = "*"+selected_in+"D"+selected_out+"#";
-                        crete_Socket_Send_Close(cmd);
+                if (selected_in>0 && selected_out>0){
+                    Toast.makeText(MainActivity.this,selected_in+" => "+selected_out,Toast.LENGTH_SHORT).show();
+                    String cmd = "*"+selected_in+"D"+selected_out+"#";
+                    crete_Socket_Send_Close(cmd);
 
-                        tv_in.setText("输入");
-                        selected_in=0;
-                        selected_out=0;
-                    }else{
-                        Toast.makeText(MainActivity.this,"请先按输入按钮，再按输出按钮",Toast.LENGTH_SHORT).show();
-                    }
+                    tv_in.setText("输入");
+                    selected_in=0;
+                    selected_out=0;
+                }else{
+                    Toast.makeText(MainActivity.this,"请先按输入按钮，再按输出按钮",Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
         //设置
         ImageButton ib_setting = findViewById(R.id.bt_setting);
-        ib_setting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this,SettingsActivity2.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(i);
-            }
+        ib_setting.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this,SettingsActivity2.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(i);
         });
         //加载配置
         loadConfig();
@@ -141,6 +139,8 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         host= settings.getString("host","29.47.1.59");
         port = Integer.parseInt(settings.getString("port","8989"));
+        title = settings.getString("companyname","国家电网省公司");
+
         String strIn= settings.getString("in","in1,in2,in3,in4,in5,in6,in7,in8");
         String strOut =settings.getString("out","out1,out2,out3,out4,out5,out6,out7,out8");
 
@@ -150,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
         out.clear();
         in.addAll(Arrays.asList(indata));
         out.addAll(Arrays.asList(outdata));
+
+        tv_title.setText(title+getString(R.string.title));
 
         text_size= settings.getString("button_text_size",text_size);
 
@@ -176,49 +178,46 @@ public class MainActivity extends AppCompatActivity {
     //创建socket发送命令然后关闭socket.
     private void crete_Socket_Send_Close(String cmd) {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Log.d("tcp",  "是否主线程："+ (Looper.getMainLooper().getThread() == Thread.currentThread()) );
-                Socket socket = null;
-                try {
-                    socket = new Socket(host, port);//第一种方式创建连接
-                    //InetSocketAddress address = new InetSocketAddress(host,port);//第二种方式创建连接
-                    //socket.connect(address,5000);
-                    if (socket.isConnected()) {
-                        Log.d("tcp", "run: connected localport:"+socket.getLocalPort());
-                    }
-                    //设置读流的超时时间
-                    socket.setSoTimeout(8000);
-                    socket.setKeepAlive(true);
-                    //获取输入输出流
-                    InputStream in = socket.getInputStream();
-                    OutputStream os = socket.getOutputStream();
+        new Thread(() -> {
+            //Log.d("tcp",  "是否主线程："+ (Looper.getMainLooper().getThread() == Thread.currentThread()) );
+            Socket socket = null;
+            try {
+                socket = new Socket(host, port);//第一种方式创建连接
+                //InetSocketAddress address = new InetSocketAddress(host,port);//第二种方式创建连接
+                //socket.connect(address,5000);
+                if (socket.isConnected()) {
+                    Log.d("tcp", "run: connected localport:"+socket.getLocalPort());
+                }
+                //设置读流的超时时间
+                socket.setSoTimeout(8000);
+                socket.setKeepAlive(true);
+                //获取输入输出流
+                InputStream in = socket.getInputStream();
+                OutputStream os = socket.getOutputStream();
 
-                    //发送数据
-                    byte[] sendData = cmd.getBytes(Charset.forName("ASCII"));
-                    try {
-                        os.write(sendData);
-                    }catch ( IOException e){
-                        e.printStackTrace();
-                    }
-                    os.flush();
-                    Log.d("tcp", "run: send "+cmd);
+                //发送数据
+                byte[] sendData = cmd.getBytes(Charset.forName("ASCII"));
+                try {
+                    os.write(sendData);
+                }catch ( IOException e){
+                    e.printStackTrace();
+                }
+                os.flush();
+                Log.d("tcp", "run: send "+cmd);
 
 /*                    byte[] buf = new byte[1024];
-                    int len = in.read(buf);
-                    String receiveData = new String(buf, 0, len, Charset.forName("UTF-8"));
-                    Log.i("tcp", "Client receive Server data:" + receiveData);*/
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(MainActivity.this,"连接时发生异常："+e.getMessage(),Toast.LENGTH_SHORT).show();
-                } finally {
-                    if (socket != null) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                int len = in.read(buf);
+                String receiveData = new String(buf, 0, len, Charset.forName("UTF-8"));
+                Log.i("tcp", "Client receive Server data:" + receiveData);*/
+            } catch (IOException e) {
+                e.printStackTrace();
+                //Toast.makeText(MainActivity.this,"连接时发生异常："+e.getMessage(),Toast.LENGTH_SHORT).show();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
